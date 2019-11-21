@@ -1,0 +1,298 @@
+ca65 V2.13.9 - (C) Copyright 1998-2005 Ullrich von Bassewitz
+Main file   : sweet16.asm
+Current file: sweet16.asm
+
+000000r 1               ;********************************
+000000r 1               ;*   APPLE-II  PSEUDO MACHINE   *
+000000r 1               ;*         INTERPRETER          *
+000000r 1               ;*      COPYRIGHT (C) 1977      *
+000000r 1               ;*     APPLE COMPUTER,  INC     *
+000000r 1               ;*     ALL  RIGHTS RESERVED     *
+000000r 1               ;*         S. WOZNIAK           *
+000000r 1               ;********************************
+000000r 1               ;* TITLE   SWEET 16 INTERPRETER *
+000000r 1               ;********************************
+000000r 1               
+000000r 1               R0L      =   $40
+000000r 1               R0H      =   $41
+000000r 1               R14H     =   $5D
+000000r 1               R15L     =   $5E
+000000r 1               R15H     =   $5F
+000000r 1               
+000000r 1               ;------------------------------
+000000r 1               ;      * =   $0570
+000000r 1               ;------------------------------
+000000r 1                      .ORG  $0570
+000570  1               ;------------------------------
+000570  1  4C 02 07             JMP  ENTRY
+000573  1               ;------------------------------
+000573  1  8D FE 06     SW16:   STA ACC            ;PRESERVE 6502 REG CONTENTS
+000576  1  8E FF 06             STX XREG
+000579  1  8C 00 07             STY YREG
+00057C  1  08                   PHP
+00057D  1  68                   PLA
+00057E  1  8D 01 07             STA STATE
+000581  1  D8                   CLD
+000582  1               ;------------------------------
+000582  1  68                   PLA
+000583  1  85 5E                STA  R15L           ;INIT SWEET16 PC
+000585  1  68                   PLA                 ;FROM RETURN
+000586  1  85 5F                STA  R15H           ;ADDRESS
+000588  1               
+000588  1  20 8E 05     SW16B:  JSR  SW16C          ;INTERPRET AND EXECUTE
+00058B  1  4C 88 05             JMP  SW16B          ;ONE SWEET16 INSTR.
+00058E  1  E6 5E        SW16C:  INC  R15L
+000590  1  D0 02                BNE  SW16D          ;INCR SWEET16 PC FOR FETCH
+000592  1  E6 5F                INC  R15H
+000594  1  A9 06        SW16D:  LDA  #>SET          ;COMMON HIGH BYTE FOR ALL ROUTINES
+000596  1  48                   PHA                 ;PUSH ON STACK FOR RTS
+000597  1  A0 00                LDY  #$0
+000599  1  B1 5E                LDA  (R15L),Y       ;FETCH INSTR
+00059B  1  29 0F                AND  #$F             ;MASK REG SPECIFICATION
+00059D  1  0A                   ASL                 ;DOUBLE FOR TWO BYTE REGISTERS
+00059E  1  AA                   TAX                 ;TO X REG FOR INDEXING
+00059F  1  4A                   LSR
+0005A0  1  51 5E                EOR  (R15L),Y       ;NOW HAVE OPCODE
+0005A2  1  F0 0B                BEQ  TOBR           ;IF ZERO THEN NON-REG OP
+0005A4  1  86 5D                STX  R14H           ;INDICATE "PRIOR RESULT REG"
+0005A6  1  4A                   LSR
+0005A7  1  4A                   LSR                 ;OPCODE*2 TO LSB'S
+0005A8  1  4A                   LSR
+0005A9  1  A8                   TAY                 ;TO Y REG FOR INDEXING
+0005AA  1  B9 E2 05             LDA  OPTBL-2,Y      ;LOW ORDER ADR BYTE
+0005AD  1  48                   PHA                 ;ONTO STACK
+0005AE  1  60                   RTS                 ;GOTO REG-OP ROUTINE
+0005AF  1  E6 5E        TOBR:   INC  R15L
+0005B1  1  D0 02                BNE  TOBR2          ;INCR PC
+0005B3  1  E6 5F                INC  R15H
+0005B5  1  BD E5 05     TOBR2:  LDA  BRTBL,X        ;LOW ORDER ADR BYTE
+0005B8  1  48                   PHA                 ;ONTO STACK FOR NON-REG OP
+0005B9  1  A5 5D                LDA  R14H           ;"PRIOR RESULT REG" INDEX
+0005BB  1  4A                   LSR                 ;PREPARE CARRY FOR BC, BNC.
+0005BC  1  60                   RTS                 ;GOTO NON-REG OP ROUTINE
+0005BD  1  68           RTNZ:   PLA                 ;POP RETURN ADDRESS
+0005BE  1  68                   PLA
+0005BF  1               ;------------------------------
+0005BF  1  AD 01 07             LDA STATE           ;RESTORE 6502 REG CONTENTS
+0005C2  1  48                   PHA
+0005C3  1  AD FE 06             LDA ACC
+0005C6  1  AE FF 06             LDX XREG
+0005C9  1  AC 00 07             LDY YREG
+0005CC  1  28                   PLP
+0005CD  1               ;------------------------------
+0005CD  1  6C 5E 00             JMP  (R15L)         ;RETURN TO 6502 CODE VIA PC
+0005D0  1  B1 5E        SETZ:   LDA  (R15L),Y       ;HIGH ORDER BYTE OF CONSTANT
+0005D2  1  95 41                STA  R0H,X
+0005D4  1  88                   DEY
+0005D5  1  B1 5E                LDA  (R15L),Y       ;LOW ORDER BYTE OF CONSTANT
+0005D7  1  95 40                STA  R0L,X
+0005D9  1  98                   TYA                 ;Y REG CONTAINS 1
+0005DA  1  38                   SEC
+0005DB  1  65 5E                ADC  R15L           ;ADD 2 TO PC
+0005DD  1  85 5E                STA  R15L
+0005DF  1  90 02                BCC  SET2
+0005E1  1  E6 5F                INC  R15H
+0005E3  1  60           SET2:   RTS
+0005E4  1               
+0005E4  1  03           OPTBL: .BYTE <SET-1          ;1X
+0005E5  1  FA           BRTBL: .BYTE <RTN-1          ;0
+0005E6  1  05                  .BYTE <LD-1           ;2X
+0005E7  1  9E                  .BYTE <BR-1           ;1
+0005E8  1  0E                  .BYTE <ST-1           ;3X
+0005E9  1  9F                  .BYTE <BNC-1          ;2
+0005EA  1  26                  .BYTE <LDAT-1         ;4X
+0005EB  1  B0                  .BYTE <BC-1           ;3
+0005EC  1  17                  .BYTE <STAT-1         ;5X
+0005ED  1  B3                  .BYTE <BP-1           ;4
+0005EE  1  48                  .BYTE <LDDAT-1        ;6X
+0005EF  1  BA                  .BYTE <BM-1           ;5
+0005F0  1  52                  .BYTE <STDAT-1        ;7X
+0005F1  1  C1                  .BYTE <BZ-1           ;6
+0005F2  1  30                  .BYTE <POP-1          ;8X
+0005F3  1  CA                  .BYTE <BNZ-1          ;7
+0005F4  1  5C                  .BYTE <STPAT-1        ;9X
+0005F5  1  D3                  .BYTE <BM1-1          ;8
+0005F6  1  86                  .BYTE <ADD-1          ;AX
+0005F7  1  DE                  .BYTE <BNM1-1         ;9
+0005F8  1  6F                  .BYTE <SUB-1          ;BX
+0005F9  1  06                  .BYTE <BK-1           ;A
+0005FA  1  34                  .BYTE <POPD-1         ;CX
+0005FB  1  E9                  .BYTE <RS-1           ;B
+0005FC  1  71                  .BYTE <CPR-1          ;DX
+0005FD  1  94                  .BYTE <BS-1           ;C
+0005FE  1  1F                  .BYTE <INR-1          ;EX
+0005FF  1  E8                  .BYTE <NUL-1          ;D
+000600  1  66                  .BYTE <DCR-1          ;FX
+000601  1  E8                  .BYTE <NUL-1          ;E
+000602  1  E8                  .BYTE <NUL-1          ;UNUSED
+000603  1  E8                  .BYTE <NUL-1          ;F
+000604  1               
+000604  1               ;------------------------------
+000604  1               ;* FOLLOWING CODE MUST BE
+000604  1               ;* CONTAINED ON A SINGLE PAGE!
+000604  1               ;------------------------------
+000604  1               
+000604  1  10 CA        SET:    BPL  SETZ           ;ALWAYS TAKEN
+000606  1  B5 40        LD:     LDA  R0L,X
+000608  1               BK       =   *-1
+000608  1  85 40                STA  R0L
+00060A  1  B5 41                LDA  R0H,X          ;MOVE RX TO R0
+00060C  1  85 41                STA  R0H
+00060E  1  60                   RTS
+00060F  1  A5 40        ST:     LDA  R0L
+000611  1  95 40                STA  R0L,X          ;MOVE R0 TO RX
+000613  1  A5 41                LDA  R0H
+000615  1  95 41                STA  R0H,X
+000617  1  60                   RTS
+000618  1  A5 40        STAT:   LDA  R0L
+00061A  1  81 40        STAT2:  STA  (R0L,X)        ;STORE BYTE INDIRECT
+00061C  1  A0 00                LDY  #$0
+00061E  1  84 5D        STAT3:  STY  R14H           ;INDICATE R0 IS RESULT NEG
+000620  1  F6 40        INR:    INC  R0L,X
+000622  1  D0 02                BNE  INR2           ;INCR RX
+000624  1  F6 41                INC  R0H,X
+000626  1  60           INR2:   RTS
+000627  1  A1 40        LDAT:   LDA  (R0L,X)        ;LOAD INDIRECT (RX)
+000629  1  85 40                STA  R0L            ;TO R0
+00062B  1  A0 00                LDY  #$0
+00062D  1  84 41                STY  R0H            ;ZERO HIGH ORDER R0 BYTE
+00062F  1  F0 ED                BEQ  STAT3          ;ALWAYS TAKEN
+000631  1  A0 00        POP:    LDY  #$0            ;HIGH ORDER BYTE = 0
+000633  1  F0 06                BEQ  POP2           ;ALWAYS TAKEN
+000635  1  20 67 06     POPD:   JSR  DCR            ;DECR RX
+000638  1  A1 40                LDA  (R0L,X)        ;POP HIGH ORDER BYTE @RX
+00063A  1  A8                   TAY                 ;SAVE IN Y REG
+00063B  1  20 67 06     POP2:   JSR  DCR            ;DECR RX
+00063E  1  A1 40                LDA  (R0L,X)        ;LOW ORDER BYTE
+000640  1  85 40                STA  R0L            ;TO R0
+000642  1  84 41                STY  R0H
+000644  1  A0 00        POP3:   LDY  #$0            ;INDICATE R0 AS LAST RESULT REG
+000646  1  84 5D                STY  R14H
+000648  1  60                   RTS
+000649  1  20 27 06     LDDAT:  JSR  LDAT           ;LOW ORDER BYTE TO R0, INCR RX
+00064C  1  A1 40                LDA  (R0L,X)        ;HIGH ORDER BYTE TO R0
+00064E  1  85 41                STA  R0H
+000650  1  4C 20 06             JMP  INR            ;INCR RX
+000653  1  20 18 06     STDAT:  JSR  STAT           ;STORE INDIRECT LOW ORDER
+000656  1  A5 41                LDA  R0H            ;BYTE AND INCR RX. THEN
+000658  1  81 40                STA  (R0L,X)        ;STORE HIGH ORDER BYTE.
+00065A  1  4C 20 06             JMP  INR            ;INCR RX AND RETURN
+00065D  1  20 67 06     STPAT:  JSR  DCR            ;DECR RX
+000660  1  A5 40                LDA  R0L
+000662  1  81 40                STA  (R0L,X)        ;STORE R0 LOW BYTE @RX
+000664  1  4C 44 06             JMP  POP3           ;INDICATE R0 AS LAST RESULT REG
+000667  1  B5 40        DCR:    LDA  R0L,X
+000669  1  D0 02                BNE  DCR2           ;DECR RX
+00066B  1  D6 41                DEC  R0H,X
+00066D  1  D6 40        DCR2:   DEC  R0L,X
+00066F  1  60                   RTS
+000670  1  A0 00        SUB:    LDY  #$0            ;RESULT TO R0
+000672  1  38           CPR:    SEC                 ;NOTE Y REG = 13*2 FOR CPR
+000673  1  A5 40                LDA  R0L
+000675  1  F5 40                SBC  R0L,X
+000677  1  99 40 00             STA  R0L,Y          ;R0-RX TO RY
+00067A  1  A5 41                LDA  R0H
+00067C  1  F5 41                SBC  R0H,X
+00067E  1  99 41 00     SUB2:   STA  R0H,Y
+000681  1  98                   TYA                 ;LAST RESULT REG*2
+000682  1  69 00                ADC  #$0            ;CARRY TO LSB
+000684  1  85 5D                STA  R14H
+000686  1  60                   RTS
+000687  1  A5 40        ADD:    LDA  R0L
+000689  1  75 40                ADC  R0L,X
+00068B  1  85 40                STA  R0L            ;R0+RX TO R0
+00068D  1  A5 41                LDA  R0H
+00068F  1  75 41                ADC  R0H,X
+000691  1  A0 00                LDY  #$0            ;R0 FOR RESULT
+000693  1  F0 E9                BEQ  SUB2           ;FINISH ADD
+000695  1  A5 5E        BS:     LDA  R15L           ;NOTE X REG IS 12*2!
+000697  1  20 1A 06             JSR  STAT2          ;PUSH LOW PC BYTE VIA R12
+00069A  1  A5 5F                LDA  R15H
+00069C  1  20 1A 06             JSR  STAT2          ;PUSH HIGH ORDER PC BYTE
+00069F  1  18           BR:     CLC
+0006A0  1  B0 0E        BNC:    BCS  BNC2           ;NO CARRY TEST
+0006A2  1  B1 5E        BR1:    LDA  (R15L),Y       ;DISPLACEMENT BYTE
+0006A4  1  10 01                BPL  BR2
+0006A6  1  88                   DEY
+0006A7  1  65 5E        BR2:    ADC  R15L           ;ADD TO PC
+0006A9  1  85 5E                STA  R15L
+0006AB  1  98                   TYA
+0006AC  1  65 5F                ADC  R15H
+0006AE  1  85 5F                STA  R15H
+0006B0  1  60           BNC2:   RTS
+0006B1  1  B0 EC        BC:     BCS  BR
+0006B3  1  60                   RTS
+0006B4  1  0A           BP:     ASL                 ;DOUBLE RESULT-REG INDEX
+0006B5  1  AA                   TAX                 ;TO X REG FOR INDEXING
+0006B6  1  B5 41                LDA  R0H,X          ;TEST FOR PLUS
+0006B8  1  10 E8                BPL  BR1            ;BRANCH IF SO
+0006BA  1  60                   RTS
+0006BB  1  0A           BM:     ASL                 ;DOUBLE RESULT-REG INDEX
+0006BC  1  AA                   TAX
+0006BD  1  B5 41                LDA  R0H,X          ;TEST FOR MINUS
+0006BF  1  30 E1                BMI  BR1
+0006C1  1  60                   RTS
+0006C2  1  0A           BZ:     ASL                 ;DOUBLE RESULT-REG INDEX
+0006C3  1  AA                   TAX
+0006C4  1  B5 40                LDA  R0L,X          ;TEST FOR ZERO
+0006C6  1  15 41                ORA  R0H,X          ;(BOTH BYTES)
+0006C8  1  F0 D8                BEQ  BR1            ;BRANCH IF SO
+0006CA  1  60                   RTS
+0006CB  1  0A           BNZ:    ASL                 ;DOUBLE RESULT-REG INDEX
+0006CC  1  AA                   TAX
+0006CD  1  B5 40                LDA  R0L,X          ;TEST FOR NON-ZERO
+0006CF  1  15 41                ORA  R0H,X          ;(BOTH BYTES)
+0006D1  1  D0 CF                BNE  BR1            ;BRANCH IF SO
+0006D3  1  60                   RTS
+0006D4  1  0A           BM1:    ASL                 ;DOUBLE RESULT-REG INDEX
+0006D5  1  AA                   TAX
+0006D6  1  B5 40                LDA  R0L,X          ;CHECK BOTH BYTES
+0006D8  1  35 41                AND  R0H,X          ;FOR #$FF (MINUS 1)
+0006DA  1  49 FF                EOR  #$FF
+0006DC  1  F0 C4                BEQ  BR1            ;BRANCH IF SO
+0006DE  1  60                   RTS
+0006DF  1  0A           BNM1:   ASL                 ;DOUBLE RESULT-REG INDEX
+0006E0  1  AA                   TAX
+0006E1  1  B5 40                LDA  R0L,X
+0006E3  1  35 41                AND  R0H,X          ;CHECK BOTH BYTES FOR NO #$FF
+0006E5  1  49 FF                EOR  #$FF
+0006E7  1  D0 B9                BNE  BR1            ;BRANCH IF NOT MINUS 1
+0006E9  1  60           NUL:    RTS
+0006EA  1  A2 18        RS:     LDX  #$18           ;12*2 FOR R12 AS STACK POINTER
+0006EC  1  20 67 06             JSR  DCR            ;DECR STACK POINTER
+0006EF  1  A1 40                LDA  (R0L,X)        ;POP HIGH RETURN ADDRESS TO PC
+0006F1  1  85 5F                STA  R15H
+0006F3  1  20 67 06             JSR  DCR            ;SAME FOR LOW ORDER BYTE
+0006F6  1  A1 40                LDA  (R0L,X)
+0006F8  1  85 5E                STA  R15L
+0006FA  1  60                   RTS
+0006FB  1  4C BD 05     RTN:    JMP  RTNZ
+0006FE  1               ;-------------------------------
+0006FE  1  00           ACC:   .BYTE 0
+0006FF  1  00           XREG:  .BYTE 0
+000700  1  00           YREG:  .BYTE 0
+000701  1  00           STATE: .BYTE 0
+000702  1               
+000702  1               ;==============================
+000702  1  20 73 05     ENTRY:  JSR  SW16
+000705  1               ;==============================
+000705  1               ; This is actualy the "main"
+000705  1               ; program in sweet16 opcodes.
+000705  1               ; It copies first screen row
+000705  1               ; to the next 10 rows ...
+000705  1               ;==============================
+000705  1               SOURCE   =  $BB80
+000705  1               DEST     =  $BB80+40
+000705  1               LEN      =  $0028*10
+000705  1               ;------------------------------
+000705  1  11 80 BB            .BYTE $11,<SOURCE, >SOURCE   ; SET    R1  source address
+000708  1  12 A8 BB            .BYTE $12,<DEST,   >DEST     ; SET    R2  destination address
+00070B  1  13 90 01            .BYTE $13,<LEN, >LEN         ; SET    R3  length
+00070E  1  41                  .BYTE $41                    ; LD     @R1
+00070F  1  52                  .BYTE $52                    ; ST     @R2
+000710  1  F3                  .BYTE $F3                    ; DCR    R3
+000711  1  07 FB               .BYTE $07,$FB                ; BNZ    $30C
+000713  1  00                  .BYTE $00                    ; RTN
+000714  1               ;------------------------------
+000714  1  60                   RTS
+000714  1               

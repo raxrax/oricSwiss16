@@ -1,0 +1,7 @@
+Makefile.local
+obj/
+*.brk
+*.sym
+*.dsk
+*.hfe
+*.HFE
