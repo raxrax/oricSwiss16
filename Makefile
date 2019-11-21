@@ -120,9 +120,16 @@ finalize: #hxc
 # 	cp -f test2.sym sw16.sym
 
 
-.PHONY: res pictures
+.PHONY: res pictures show showtap
 
 res: pictures
 
 pictures:
 	@make -C res/pics all
+
+show: $(PROJECT).dsk
+	$(Q) [ -f "$(PWD)/$(PROJECT).dsk" ] && cd $(EMUDIR) && $(EMU) $(EMUARG) "$(PWD)/$(PROJECT).dsk" $(EMUPARAM)
+
+showtap: $(PROJECT).tap
+	$(Q) [ -f "$(PWD)/$(PROJECT).tap" ] && cd $(EMUDIR) && $(EMU) $(EMUARG) "$(PWD)/$(PROJECT).tap" $(EMUPARAM)
+
