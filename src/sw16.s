@@ -185,17 +185,17 @@ SW16_MENU_CHOICE_NEXT3
 SW16_MENU_CHOICE_NEXT4
     SET     (R1,'6')
     LD      R9
-    CPR     R1                      ;WOS'S QUOTES
+    CPR     R1                      ;GAME
     BNZ     (SW16_MENU_CHOICE_NEXT5) 
-    BS      (SW16_WOSQUOTES)
+    BS      (SW16_GAME)
     BR      (SW16_MENU)    
 
 SW16_MENU_CHOICE_NEXT5
     SET     (R1,'7')
     LD      R9
-    CPR     R1                      ;GAME
+    CPR     R1                      ;WOS'S QUOTES
     BNZ     (SW16_MENU_CHOICE_NEXT6) 
-    BS      (SW16_GAME)
+    BS      (SW16_WOSQUOTES)
     BR      (SW16_MENU)   
 
 SW16_MENU_CHOICE_NEXT6
@@ -234,12 +234,12 @@ SW16_PRINT_PRESS_A_KEY
     TEXT_WELCOME1   .byte 3,10,"--- SWEET16 DEMO PAGE ---",0
     TEXT_WELCOME2   .byte 2,"This demo was made with the SWEET16",0
     TEXT_WELCOME3   .byte 6,"1..     Intro",0
-    TEXT_WELCOME4   .byte 6,"2..     Lines",0
+    TEXT_WELCOME4   .byte 6,"2..     Text Lines",0
     TEXT_WELCOME5   .byte 6,"3..     Hires Lines",0
     TEXT_WELCOME6   .byte 6,"4..     99 Bottles of Beer",0
-    TEXT_WELCOME7   .byte 6,"5..     Maze",0
-    TEXT_WELCOME8   .byte 6,"6..     Woz's quotes (random)",0
-    TEXT_WELCOME9   .byte 6,"7..     Game",0
+    TEXT_WELCOME7   .byte 6,"5..     Maze Generator",0
+    TEXT_WELCOME8   .byte 6,"6..     Boxes Game",0
+    TEXT_WELCOME9   .byte 6,"7..     Woz's Quotes (random)",0
     TEXT_WELCOME10  .byte 6,"0..     Exit",0
 
     TEXT_PAK        .byte 16,12,1,"Press any key...",0
