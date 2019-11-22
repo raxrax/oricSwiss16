@@ -69,8 +69,9 @@
 #define RF              $f
 
 // -------------------------------
-// Sweet16 entry
+// Sweet16 entries
 // -------------------------------
+#define SWEET16_INIT    _SW16_INIT
 #define SWEET16         _SW16
 #define SWEET16_3       _SW16+3
 

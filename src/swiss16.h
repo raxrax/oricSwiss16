@@ -69,13 +69,17 @@
 #define STK             RC           // SWEET16 STACK POINTER
 
 // -------------------------------
-// Sweet16 entries and aliases
+// Swiss16 entries
 // -------------------------------
-#define SWEET16_INIT    _SW16_INIT
 #define SWISS16_INIT    _SW16_INIT
-#define SWEET16         _SW16
-#define SWEET16_3       _SW16+3
 #define SWISS16         _SW16
 #define SWISS16_3       _SW16+3
+
+// -------------------------------
+// Sweet16 aliases
+// -------------------------------
+#define SWEET16_INIT    _SW16_INIT
+#define SWEET16         _SW16
+#define SWEET16_3       _SW16+3
 
 #endif /* __SWISS16_H__ */

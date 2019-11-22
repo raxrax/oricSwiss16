@@ -352,9 +352,9 @@ SW16_SAVE
         PHP  
         PLA  
         STA  STATUS
-        CLD  
+        CLD
         RTS
-
+        
 ;------------------------------
 SW16_RESTORE
 STATUS  = *+1
@@ -368,4 +368,15 @@ YREG    = *+1
         LDY  #<YREG
         PLP
         RTS
-;-------------------------------
+
+;------------------------------
+_SW16_INIT
+        LDX  #$20
+        LDA  #$00
+SWI1
+        STA  R0-1,X
+        DEX
+        BNE  SWI1
+        RTS
+
+;------------------------------
