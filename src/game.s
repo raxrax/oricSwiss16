@@ -507,7 +507,7 @@ SW16_GAME_SELECT
     SET     (R3, 0)
     BS      (SW16_PRINT_TEXT)
 
-    SET     (R1, $BB80+6+25*40)
+    SET     (R1, $BB80+5+25*40)
     SET     (R2, games_select2)
     SET     (R3, 0)
     BS      (SW16_PRINT_TEXT)
@@ -594,9 +594,9 @@ game_new_lines
     .byte "$   $%$$   $",0     ;8
 
 games_select1
-    .byte 14,3,"Select a difficulty",9,4,0
+    .byte 10,3,"Select a difficulty",9,4,0
 games_select2
-    .byte  12,3,"(1-Easy   2-Hard)",9,4,0
+    .byte  12,3,"1-Type A   2-Type B",9,4,0
 
 game_player_x   .byte 0
 game_state      .byte 0
