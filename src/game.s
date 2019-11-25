@@ -17,6 +17,7 @@ GAME_STATE_STOP         = 0
 GAME_NEWLINE_PRINT_SPEED = 0
 GAME_NEWLINE_SPEED_COUNTER = 3
 
+
 ;====================================
 
 SW16_GAME
@@ -38,6 +39,13 @@ SW16_GAME_SCREEN
     SET     (R2, GAME_FONT)
     SET     (R3, 88)
     BS      (SW16_MOVE)
+
+    SET     (R1, $bbA8)
+    SET     (R2, GAME_SCREEN)
+    SET     (R3, 1080)
+    BS      (SW16_MOVE)
+
+    BS      (SW16_GAME_SELECT)
 
     SET     (R1, $bbA8)
     SET     (R2, GAME_SCREEN)
@@ -222,7 +230,15 @@ SW16_GAME_MOVEBOX
     ADD     R6
     ST      R6                              ;BOX POSITION
 
+
+
 SW16_GAME_MOVEBOX_LOOP
+
+    ;; CHECK TYPE GAME
+    SET     (R1,game_type)
+    LDat     R1
+    BZ      (SW16_GAME_MOVEBOX_EASY_GAME)  
+
     ;;CHECK FOR BOX LEFT
     SET     (R4,1)
     LD      R6
@@ -252,13 +268,16 @@ SW16_GAME_MOVEBOX_CHECK2
 
     BR      (SW16_GAME_MOVEBOX_NEW_LINE)    ;IF NO SPACE - EXIT
 
+SW16_GAME_MOVEBOX_EASY_GAME  
+
 SW16_GAME_MOVEBOX_CHECK3
-    ;;CHECK FOR BOX END
+    ;;CHECK FOR BOX END OF LINE
     LD      R5                              ;LINE COUNTER
     SET     (R0,1)                  
     CPR     R5                              ;IF LAST LINE - SKIP
     BZ      (SW16_GAME_MOVEBOX_CHECK_END)
 
+    ;;CHECK FOR BOX TOP
     SET     (R4,40)
     LD      R6
     ST      R3                              ;TEMP BOX POS
@@ -475,6 +494,51 @@ SW16_GAME_GAMEOVER_CHECK_FALSE
     RS
 
 ;====================================
+
+SW16_GAME_SELECT
+
+    SET     (R1, $BB80+5+22*40)
+    SET     (R2, games_select1)
+    SET     (R3, 0)
+    BS      (SW16_PRINT_TEXT)
+
+    SET     (R1, $BB80+5+23*40)
+    SET     (R2, games_select1)
+    SET     (R3, 0)
+    BS      (SW16_PRINT_TEXT)
+
+    SET     (R1, $BB80+6+25*40)
+    SET     (R2, games_select2)
+    SET     (R3, 0)
+    BS      (SW16_PRINT_TEXT)
+
+SW16_GAME_SELECT_LOOP
+    
+    BS      (SW16_GET)
+    SET     (R1,'1')
+    SET     (R2,'2')
+
+    LD      R9              ;GET KEY IN ACC
+    CPR     R1 
+    BNZ     (SW16_GAME_SELECT_NEXT)
+    SET     (R0,0)          ;SET EASY GAME
+    SET     (R1,game_type)
+    STat     R1
+    RS
+
+SW16_GAME_SELECT_NEXT
+    CPR     R2 
+    BNZ     (SW16_GAME_SELECT_LOOP)
+    SET     (R0,1)          ;SET HARD GAME
+    SET     (R1,game_type)
+    STat     R1
+
+    RS
+
+
+
+;====================================
+
 GAME_SCREEN
     .byte   9,4,"(((((((((((((((((((((((((((((((((((((("
     .byte   9,4,"(((((((((((((((((((((((((((((((((((((("
@@ -529,11 +593,16 @@ game_new_lines
     .byte "$$%%$   $$$$",0     ;7
     .byte "$   $%$$   $",0     ;8
 
+games_select1
+    .byte 14,3,"Select a difficulty",9,4,0
+games_select2
+    .byte  12,3,"(1-Easy   2-Hard)",9,4,0
 
 game_player_x   .byte 0
 game_state      .byte 0
 game_lines_counter  .byte 0
 
+game_type       .byte 0             ;0-EASY 1-HARD
 
 sfx_table_shot  .byte 0,0,0,2,0,3,15,73,0,16,16,0,4,0
 sfx_table_line  .byte 0,0,0,2,0,3,0,121,0,16,16,0,10,0
