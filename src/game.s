@@ -16,7 +16,7 @@ GAME_STATE_RUNNING      = 1
 GAME_STATE_STOP         = 0
 GAME_NEWLINE_PRINT_SPEED = 0
 GAME_NEWLINE_SPEED_COUNTER = 3
-
+GAME_SCORE_ADDR         = $BB80+10*40+33
 
 ;====================================
 
@@ -69,6 +69,11 @@ SW16_GAME_INIT
     SET     (R0,0)                  ;game_lines_counter
     SET     (R1,game_lines_counter)
     STat    R1
+
+    SET     (R1, game_score)        ;reset score
+    SET     (R2, game_score_def)
+    SET     (R3,3)
+    BS      (SW16_MOVE)
 
     BS      (SW16_GAME_PRINTPLAYER)
 
@@ -422,7 +427,12 @@ SW16_GAME_ERASE_LINES_LOOP
 
 SW16_GAME_ERASE_LINES_ERASE
     SET     (R1, sfx_table_line)
-    BS      (SW16_SFX)
+    BS      (SW16_SFX)                      ;SOUND
+    BS      (SW16_GAME_INC_SCORE)
+    SET     (R1,GAME_SCORE_ADDR)
+    SET     (R2,game_score)
+    SET     (R3,3)
+    BS      (SW16_MOVE)
 
     ;;ERASE
     LD      R6
@@ -531,8 +541,50 @@ SW16_GAME_SELECT_NEXT
     BNZ     (SW16_GAME_SELECT_LOOP)
     SET     (R0,1)          ;SET HARD GAME
     SET     (R1,game_type)
-    STat     R1
+    STat    R1
 
+    RS
+
+;====================================
+SW16_GAME_INC_SCORE
+    SET     (R1,game_score+2)
+    SET     (R3,'9'+1)
+    ;; FIRST CHAR
+    LDat    R1              ;LOAD SCORE DIGIT
+    INR     R0
+    DCR     R1              ;SAVE SCORE DIGIT
+    STat    R1
+    CPR     R3              ; IF ACC > "9"
+    BNZ      (SW16_GAME_INC_SCORE_EXIT)
+    SET     (R0,'0')
+    DCR     R1              ;SET CHAR "0"
+    STat    R1
+    ;; NEXT CHAR
+    DCR     R1
+    DCR     R1
+    LDat    R1              ;LOAD SCORE DIGIT
+    INR     R0
+    DCR     R1              ;SAVE SCORE DIGIT
+    STat    R1
+    CPR     R3              ; IF ACC > "9"
+    BNZ     (SW16_GAME_INC_SCORE_EXIT)
+    SET     (R0,'0')
+    DCR     R1              ;SET CHAR "0"
+    STat    R1
+    ;; NEXT CHAR
+    DCR     R1
+    DCR     R1
+    LDat    R1              ;LOAD SCORE DIGIT
+    INR     R0
+    DCR     R1              ;SAVE SCORE DIGIT
+    STat    R1
+    CPR     R3              ; IF ACC > "9"
+    BNZ     (SW16_GAME_INC_SCORE_EXIT)
+    SET     (R0,'0')
+    DCR     R1              ;SET CHAR "0"
+    STat    R1
+
+SW16_GAME_INC_SCORE_EXIT
     RS
 
 
@@ -547,14 +599,14 @@ GAME_SCREEN
     .byte   9,4,"(((                  (( ",8,3,"        ",4,9,"(("
     .byte   9,4,"(((",6,160," $% %$  $% %$ ",160,4,"((",10,3,"- Boxes -",4,9,"(("
     .byte   9,4,"(((",6,160,"              ",160,4,"((",10,3,"- Boxes -",4,9,"(("
-    .byte   9,4,"(((",6,160,"              ",160,4,"((",8,3,"         ",4,9,"(("
     .byte   9,4,"(((",6,160,"              ",160,4,"((",8,1," SWEET16 ",4,9,"(("
-    .byte   9,4,"(((",6,160,"              ",160,4,"((",8,1,"Demo game",4,9,"(("
+    .byte   9,4,"(((",6,160,"              ",160,4,"((",8,3,"         ",4,9,"(("
+    .byte   9,4,"(((",6,160,"              ",160,4,"((",8,3,"Lines:000",4,9,"(("
     .byte   9,4,"(((",6,160,"              ",160,4,"((",8,3,"         ",4,9,"(("
     .byte   9,4,"(((",6,160,"              ",160,4,"((((((((((((((((("
     .byte   9,4,"(((",6,160,"              ",160,4,"((((((((((((((((("
     .byte   9,4,"(((",6,160,"              ",160,4,"((",8,3,"         ",4,9,"(("
-    .byte   9,4,"(((",6,160,"              ",160,4,"((",8,3,"KEYS     ",4,9,"(("
+    .byte   9,4,"(((",6,160,"              ",160,4,"((",8,3,"- KEYS - ",4,9,"(("
     .byte   9,4,"(((",6,160,"              ",160,4,"((",8,2,": Left   ",4,9,"(("
     .byte   9,4,"(((",6,160,"              ",160,4,"((",8,2,": Right  ",4,9,"(("
     .byte   9,4,"(((",6,160,"              ",160,4,"((",8,2,": Space  ",4,9,"(("
@@ -607,3 +659,6 @@ game_type       .byte 0             ;0-EASY 1-HARD
 sfx_table_shot  .byte 0,0,0,2,0,3,15,73,0,16,16,0,4,0
 sfx_table_line  .byte 0,0,0,2,0,3,0,121,0,16,16,0,10,0
 sfx_table_die   .byte 0,0,0,10,0,15,0,73,0,16,16,0,20,0
+
+game_score      .byte "000"
+game_score_def  .byte "000"
