@@ -27,6 +27,9 @@ SW16_GAME
 
     BS      (SW16_GAME_GAME)
 
+    SET     (R1,100)
+    BS      (SW16_WAIT)
+
     BS      (SW16_PRINT_PRESS_A_KEY)
     BS      (SW16_GET)
 
