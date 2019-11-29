@@ -15,7 +15,7 @@ PROJECT_QUITDOS         := 1
 CPU                     := 6502
 
 # # # Toolchain OSDK or CC65
-TOOLCHAIN               := CC65
+TOOLCHAIN               := OSDK
 
 # # # 
 START_ADDRESS           := $(shell echo $$((0x1000)))

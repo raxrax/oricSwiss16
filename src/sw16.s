@@ -193,7 +193,7 @@ SW16_MENU_CHOICE_NEXT4
 SW16_MENU_CHOICE_NEXT5
     SET     (R1,'7')
     LD      R9
-    CPR     R1                      ;WOS'S QUOTES
+    CPR     R1                      ;WOS`S QUOTES
     BNZ     (SW16_MENU_CHOICE_NEXT6) 
     BS      (SW16_WOSQUOTES)
     BR      (SW16_MENU)   
