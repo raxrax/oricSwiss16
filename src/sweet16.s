@@ -23,11 +23,6 @@ R15L     =   RL(15)
 R15H     =   RH(15)
 
 ;------------------------------
-*        =  START_ADDRESS
-;------------------------------
-        jmp _ENTRY
-
-;------------------------------
 _SW16                       ;MAIN ENTRYPOINT OF SW16
         JSR SW16_SAVE       ;PRESERVE 6502 REG CONTENTS
 ;------------------------------

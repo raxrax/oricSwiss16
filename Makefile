@@ -15,14 +15,14 @@ PROJECT_QUITDOS         := 1
 CPU                     := 6502
 
 # # # Toolchain OSDK or CC65
-TOOLCHAIN               := OSDK
+TOOLCHAIN               := CC65
 
 # # # 
 START_ADDRESS           := $(shell echo $$((0x1000)))
 
 PICTURES                := pic_0 pic_1 pic_2 pic_3 pic_4 pic_5 pic_6 pic_7 pic_8
 
-ATAPS                   := $(PROJECT) #$(PICTURES)
+ATAPS                   := $(PROJECT)
 BTAPS                   :=
 CTAPS                   := 
 OTAPS                   := 
@@ -31,7 +31,7 @@ TAPS                    := $(addsuffix .tap,$(ATAPS) $(BTAPS) $(CTAPS) $(OTAPS))
 
 # 
 
-$(PROJECT)_SRC          := swiss16.s sw16.s lzfh6502.s resources.s $(addsuffix .s,$(PICTURES))
+$(PROJECT)_SRC          := stub.s swiss16.s sw16.s lzfh6502.s resources.s $(addsuffix .s,$(PICTURES))
 $(PROJECT)_AUTORUN      := 1
 $(PROJECT)_ADDRESS      := $(START_ADDRESS)
 $(PROJECT)_ACPP         := 1

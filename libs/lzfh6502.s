@@ -18,17 +18,17 @@ lz4fh_magic  =  $66       ;ascii f
 tok_empty    =  253
 tok_eod      =  254
 
-.zero
+; .zero
 
 ;
 ; Variable storage
 ;
-*         =     $b0
-copyptr   .dsb  2   ;2b
-savmix    .dsb  1   ;1b
-savlen    .dsb  1   ;1b
-srcptr    .dsb  2   ;2b a1l
-dstptr    .dsb  2   ;2b a1h
+lz4_zp      =  $b0
+copyptr     =  lz4_zp + 0 ;2b
+savmix      =  lz4_zp + 2 ;1b
+savlen      =  lz4_zp + 3 ;1b
+srcptr      =  lz4_zp + 4 ;2b a1l
+dstptr      =  lz4_zp + 6 ;2b a1h
 
 ;
 ; Parameters, stashed at the top of the text input
