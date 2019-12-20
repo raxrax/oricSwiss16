@@ -51,6 +51,16 @@ _ENTRY
     SET     (R3, 96*8)
     BS      (SW16_MOVE)
 
+    ;; LOGO
+    BS      (SW16_PRINT_LOGO)
+
+    ;; WAIT 2s
+    SET     (R1,200)
+    BS      (SW16_WAIT)
+
+    ;; CLEAR SCREEN
+    BS      (SW16_CLS)
+
     ;; MENU
     BS      (SW16_MENU)
    
@@ -99,6 +109,7 @@ SW16_MENU
     LDat    (R1)
     ST       R3
 
+    ;; SET MAX SPEED
     SET     (R1,TEXT_SPEED)
     SET     (R0,0)
     STat    (R1)
@@ -216,7 +227,9 @@ SW16_MENU_CHOICE_END
     BR      (SW16_MENU_CHOICE)
 SW16_MENU_CHOICE_EXIT
     RS
+
 ;==============================
+
 SW16_PRINT_PRESS_A_KEY
     ;; PRESS ANY KEY
     SET     (R1,$BB80+21+27*40)
@@ -224,10 +237,20 @@ SW16_PRINT_PRESS_A_KEY
     SET     (R3,0)
     BS      (SW16_PRINT_TEXT)
     RS
+
+;==============================
+
+    SW16_PRINT_LOGO
+    SET     (R1, $BB80+7*40)
+    SET     (R2, LOGO)
+    SET     (R3, 8*40)
+    BS      (SW16_MOVE)
+    RS
+
 ;==============================
 
 
-    TEXT_CREDITS    .byte 4,"[ISS/RAX]",0
+    TEXT_CREDITS    .byte 4,"[RAXISS]",0
 
     TEXT_TITLE      .byte 5,"  Hello world! Here is Woz's Sweet-16. ",0
 
@@ -249,3 +272,12 @@ SW16_PRINT_PRESS_A_KEY
     SFX_TABLE_CHOICE .byte 0,0,160,0,0,0,0,61,0,16,0,100,0,0
 
     
+    LOGO 
+                    .byte 07,"                      .__              "
+                    .byte 07," ____________  ___  __|__| _____ _____ "
+                    .byte 07," \_  __ \__  \ \  \/  /  |/ ___// ___/ "
+                    .byte 07,"  |  | \// __ \_>    <|  |\__ \ \__ \  "
+                    .byte 07,"  |__|  (____  /__/\_ \__/___  >___  > "
+                    .byte 07,"             \/      \/      \/    \/  "
+                    .byte 07,"                                       "
+                    .byte 07,"               presents                "
