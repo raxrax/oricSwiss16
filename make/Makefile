@@ -1,6 +1,12 @@
-PROJECT                 := sw16
+#)              _
+#)  ___ ___ _ _|_|___ ___
+#) |  _| .'|_'_| |_ -|_ -|
+#) |_| |__,|_,_|_|___|___|
+#)    raxiss (c) 2019,2020
+
+PROJECT                 := swiss16-demo
 PROJECT_DIR             := $(shell pwd)
-PROJECT_LABEL           := sw16
+PROJECT_LABEL           := swiss16-demo
 
 # # # Only for FlopyBuilder
 # PROJECT_DSK           := $(PROJECT).dsk
@@ -17,30 +23,24 @@ CPU                     := 6502
 # # # Toolchain OSDK or CC65
 TOOLCHAIN               := CC65
 
-# # # 
+# # #
 START_ADDRESS           := $(shell echo $$((0x1000)))
 
 PICTURES                := pic_0 pic_1 pic_2 pic_3 pic_4 pic_5 pic_6 pic_7 pic_8
 
 ATAPS                   := $(PROJECT)
 BTAPS                   :=
-CTAPS                   := 
-OTAPS                   := 
+CTAPS                   :=
+OTAPS                   :=
 
 TAPS                    := $(addsuffix .tap,$(ATAPS) $(BTAPS) $(CTAPS) $(OTAPS))
 
-# 
+#
 
-$(PROJECT)_SRC          := stub.s swiss16.s sw16.s lzfh6502.s resources.s $(addsuffix .s,$(PICTURES))
+$(PROJECT)_SRC          := sw16.s swiss16.s lzfh6502.s resources.s $(addsuffix .s,$(PICTURES))
 $(PROJECT)_AUTORUN      := 1
 $(PROJECT)_ADDRESS      := $(START_ADDRESS)
 $(PROJECT)_ACPP         := 1
-
-# # common_SRC             := compat.s libsedoric.s isr.s vsync.s via.s psg.s keyboard.s mym.s 
-# test_SRC                 := $(common_SRC) test.c
-# test_AUTORUN             := 1
-# test_ADDRESS             := $(START_ADDRESS)
-# test_ACPP                := 1
 
 #
 include Makefile.local
@@ -53,17 +53,15 @@ CC65_ALIGNED            := 0
 EMU                     := ./oricutron
 EMUDIR                  := $(EMUL_DIR)
 EMUARG                  := -ma
-EMUARG                  += --serial none 
+EMUARG                  += --serial none
 EMUARG                  += --vsynchack off
-EMUARG                  += -s $(PROJECT_DIR)/$(PROJECT).sym 
+EMUARG                  += -s $(PROJECT_DIR)/$(PROJECT).sym
 EMUARG                  += -r :$(PROJECT_DIR)/$(PROJECT).brk
 EMUARG                  += #-r $(START_ADDRESS)
 
-# FBS                   := ../libfbs/fbs
-# COMMON                := ../../common
-LIBS                  := libs/
-PICS                  := res/pics/
-SRC                   := src/
+SRC                     := ../src/
+LIBS                    := ../libs/
+PICS                    := ../res/pics/
 
 VPATH                   := $(VPATH) $(LIBS) $(SRC) $(PICS)
 
@@ -79,7 +77,7 @@ AFLAGS                  += -DSTART_ADDRESS=$(START_ADDRESS)
 
 # AFLAGS                += -DUSE_JOYSTICK
 # AFLAGS                += -DUSE_JOYSTICK_IJK
-# 
+#
 # AFLAGS                += -DUSE_VSYNC
 # AFLAGS                += -DUSE_VSYNC_50HZ
 # AFLAGS                += -DUSE_VSYNC_60HZ
@@ -112,11 +110,11 @@ prepare: #res
 	@echo "Building with $(TOOLCHAIN)..."
 
 finalize: #hxc
-	@([ -e $(PROJECT)_dsk.hfe ] && cp -f $(PROJECT)_dsk.hfe DSKA0000.HFE) || echo -n
+# 	@([ -e $(PROJECT)_dsk.hfe ] && cp -f $(PROJECT)_dsk.hfe DSKA0000.HFE) || echo -n
 	@([ -e $(PROJECT).brk ] || touch $(PROJECT).brk) || echo -n
 	@echo   "[NFO]   ----------------------"
 	@printf "[MEM]   main  : #%.4X .. #%.4X\\n" $$(($(START_ADDRESS))) $$(expr `cat $(PROJECT) | wc -c` + $$(($(START_ADDRESS))))
-	@echo "Done"
+	@echo "Done. crc32: $$(crc32 $(PROJECT))"
 # 	cp -f test2.sym sw16.sym
 
 

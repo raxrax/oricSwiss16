@@ -1,6 +1,6 @@
-;==============================
-;BEER
-;==============================
+;======================================================
+; BEER SONG DEMO
+;======================================================
 
 ;-----------------------------------------------------;
 ; BEER SONG FOR THE SWEET16 PSEUDO-PROCESSOR          ;
@@ -34,12 +34,9 @@ MAXB     =   99              ; MUST BE IN [1..65535]
 ;-----------------------------------------------------;
 ; REGISTER EQUATES                                    ;
 ;-----------------------------------------------------;
-      
-#ifndef SWISS16
+
 ACU      =   R0           ; SWEET16 MAIN ACCUM.
 STK      =   RC           ; SWEET16 STACK POINTER
-#endif
-
 BEER     =   R1           ; BEER COUNTER
 TYPE     =   R2           ; SUBPHRASE TYPE
 PTR      =   R3           ; TEXT POINTER
@@ -59,10 +56,10 @@ SW16_BEER
 ;-----------------------------------------------------;
 ; MAIN LOOP:  PRINT ALL EXCEPT THE LAST SENTENCE      ;
 ;-----------------------------------------------------;
-BEERME  
+BEERME
         SET (PTR,TAKE)    ; PRINT "TAKE ONE ... AROUND,"
         BS  (PRBOB)       ; PRINT " ... ON THE WALL."
-PRSONG  
+PRSONG
         SET (PTR,CR)      ; PRINT BLANK LINE
         BS  (PRBOB)       ; PRINT " ... ON THE WALL";
         DCR  ACU          ; TYPE = -1
@@ -85,7 +82,7 @@ PRSONG
 ;    -1 = " ... OF BEER.", +1 = " ... THE WALL.")     ;
 ; (EXIT):  ACU IS CLEARED                             ;
 ;-----------------------------------------------------;
-PRBOB   
+PRBOB
         ST   TYPE
         BS  (PUTS)        ; PRINT PRE-STRING
         LD   BEER         ; IF BEER = 0 THEN
@@ -94,22 +91,22 @@ PRBOB
         lda  $43          ;    esc to 6502 mode just long
         ldx  $42          ;    enough to print value of
         jsr  _BIN2ASC     ;    beer to active output.
-        JSR  SWEET16_3    ; 
-        SET (PTR,BOTTL)   ; 
+        JSR  SWEET16_3    ;
+        SET (PTR,BOTTL)   ;
 PRBOTT
         BS  (PUTS)        ; PRINT " ... BOTTLE";
-        DCR  BEER         ; 
+        DCR  BEER         ;
         BNZ (NEQ1)        ; IF BEER = 1 THEN
         INR  PTR          ;    SKIP OVER THE "S"
-NEQ1    
-        INR  BEER         ; 
+NEQ1
+        INR  BEER         ;
         BS  (PUTS)        ; PRINT " ... OF BEER";
-        LD   TYPE         ; 
+        LD   TYPE         ;
         BM1 (NOWALL)      ; IF TYPE >= 0 THEN
         BS  (PUTS)        ;    PRINT " ON THE WALL";
-        LD   TYPE         ; 
+        LD   TYPE         ;
         BZ  (KPUT)        ; IF TYPE <> 0 THEN
-NOWALL  
+NOWALL
         SET(PTR,DOTCR)    ;    PRINT "."
 ;-----------------------------------------------------;
 ; PRINT A NULL-TERMINATED STRING @ PTR                ;
@@ -117,56 +114,28 @@ NOWALL
 ; (EXIT):  PTR POINTS TO THE NEXT STRING IN MEMORY,   ;
 ;          ACU IS CLEARED                             ;
 ;-----------------------------------------------------;
-PUTS    
+PUTS
         LDat PTR          ; GRAB CHAR @ PTR, ADVANCE PTR
-        BZ  (KPUT)        ; 
+        BZ  (KPUT)        ;
         RTN               ; ESC TO 6502 MODE
         ldx  $40          ;    just long enough
         jsr  _PUTCHAR     ;    to print the char
         jsr  SWEET16_3    ;    TO ACTIVE OUTPUT
         BR  (PUTS)        ; LOOP UNTIL NULL
-KPUT    
+KPUT
         RS                ; RETURN
 ;-----------------------------------------------------;
 ; OPTIMIZED SONG LYRIC STRING                         ;
 ;-----------------------------------------------------;
-TAKE    .BYT "TAKE ONE DOWN AND PASS IT AROUND"
-COMCR   .BYT ","
-CR      .BYT 13,10,0
-        .BYT "NO MORE"
-BOTTL   .BYT " BOTTLE",0
-        .BYT "S OF BEER",0
-        .BYT " ON THE WALL",0
-DOTCR   .BYT ".",13,10,0
-        .BYT "GO TO THE STORE AND BUY SOME MORE,",13,10,0
-
-;-----------------------------------------------------;
-_BIN2ASC_TMP .byt 0,0,0,0
-
-_BIN2ASC                  ; ROM: PRINT UNSIGNED16
-        stx _BIN2ASC_TMP
-        sta _BIN2ASC_TMP+1
-        lda #$00
-        sta _BIN2ASC_TMP+2
-        sta _BIN2ASC_TMP+3
-        
-        ldx #<_BIN2ASC_TMP
-        ldy #>_BIN2ASC_TMP
-        jsr _binstr
-        
-        sta _BIN2ASC_TMP
-        ldy #0
-loop
-        ldx str_buf,y
-        jsr _PUTCHAR
-        iny
-        cpy _BIN2ASC_TMP
-        bne loop
-        rts
-
-;-----------------------------------------------------;
-_PUTCHAR                  ; ROM: PRINT CHARACTER
-        jmp $238
+TAKE    .byt "TAKE ONE DOWN AND PASS IT AROUND"
+COMCR   .byt ","
+CR      .byt 13,10,0
+        .byt "NO MORE"
+BOTTL   .byt " BOTTLE",0
+        .byt "S OF BEER",0
+        .byt " ON THE WALL",0
+DOTCR   .byt ".",13,10,0
+        .byt "GO TO THE STORE AND BUY SOME MORE,",13,10,0
 
 ;-----------------------------------------------------;
 
@@ -276,21 +245,30 @@ s_pfac    =    m_bits/8             ;primary accumulator size
 s_ptr     =    2                    ;pointer size
 s_wrkspc  =    m_cbits/8            ;conversion workspace size
 
+;================================================================================
+;PER RADIX CONVERSION TABLES
+
+bitstab  .byt 4,1,3,4         ;bits per numeral
+lzsttab  .byt 2,9,2,3         ;leading zero suppression thresholds
+numstab  .byt 12,48,16,12     ;maximum numerals
+radxtab  .byt 0,"%@$"         ;recognized symbols
+
+;================================================================================
+;STATIC STORAGE
+
+binstr_buf  .dsb 32
+str_buf     .dsb m_strlen+1   ;conversion string buffer
 
 ; ---------------------------------
 ; The following may be relocated to
 ; absolute storage if desired.
 ; ---------------------------------
-pfac      =    binstr_buf+s_ptr     ;primary accumulator
-wrkspc01  =    pfac+s_pfac          ;conversion...
-wrkspc02  =    wrkspc01+s_wrkspc    ;workspace
-formflag  =    wrkspc02+s_wrkspc    ;string format flag
-radix     =    formflag+1           ;radix index
-stridx    =    radix+1              ;string buffer index
-
-;================================================================================
-
-
+#define pfac      binstr_buf+s_ptr     ;primary accumulator
+#define wrkspc01  pfac+s_pfac          ;conversion...
+#define wrkspc02  wrkspc01+s_wrkspc    ;workspace
+#define formflag  wrkspc02+s_wrkspc    ;string format flag
+#define radix     formflag+1           ;radix index
+#define stridx    radix+1              ;string buffer index
 
 ;CONVERT 32-BIT BINARY TO NULL-TERMINATED ASCII NUMBER STRING
 
@@ -302,18 +280,17 @@ stridx    =    radix+1              ;string buffer index
 ; ----------------------------------------------------------------
 
 ; ----------------------------------------------------------------
-.text
+; .text
 ; ----------------------------------------------------------------
 
 _binstr
-.(
-         stx _binstr_ptr       ;operand pointer LSB
-         sty _binstr_ptr+1     ;operand pointer MSB
+; .(
+         stx binstr01+1     ;operand pointer LSB
+         sty binstr01+2     ;operand pointer MSB
          tax                   ;protect radix
 
          ldy #s_pfac-1         ;operand size
 
-_binstr_ptr = 1+*
 binstr01 lda $1234,y           ;copy operand to...
          sta pfac,y            ;workspace
          dey
@@ -448,14 +425,14 @@ binstr15 dec wrkspc02+1        ;numerals=numerals-1
          ldy #>str_buf          ;converted string MSB
          clc                   ;all okay
          rts
-.)
+; .)
 
 ;================================================================================
 ;CONVERT PFAC INTO BCD
 
 facbcd
-.(
-        ldx #s_pfac-1         ;primary accumulator size -1
+; .(
+         ldx #s_pfac-1         ;primary accumulator size -1
 
 facbcd01 lda pfac,x            ;value to be converted
          pha                   ;protect
@@ -516,19 +493,32 @@ facbcd08 pla                   ;operand
          cpx #s_pfac
          bne facbcd08          ;next
          rts
-.)
+; .)
 
-;================================================================================
-;PER RADIX CONVERSION TABLES
+;-----------------------------------------------------;
+_BIN2ASC_TMP .byt 0,0,0,0
+_BIN2ASC                  ; ROM: PRINT UNSIGNED16
+        stx _BIN2ASC_TMP
+        sta _BIN2ASC_TMP+1
+        lda #$00
+        sta _BIN2ASC_TMP+2
+        sta _BIN2ASC_TMP+3
 
-bitstab  .byt 4,1,3,4         ;bits per numeral
-lzsttab  .byt 2,9,2,3         ;leading zero suppression thresholds
-numstab  .byt 12,48,16,12     ;maximum numerals
-radxtab  .byt 0,"%@$"         ;recognized symbols
+        ldx #<_BIN2ASC_TMP
+        ldy #>_BIN2ASC_TMP
+        jsr _binstr
 
-;================================================================================
-;STATIC STORAGE
+        sta _BIN2ASC_TMP
+        ldy #0
+loop
+        ldx str_buf,y
+        jsr _PUTCHAR
+        iny
+        cpy _BIN2ASC_TMP
+        bne loop
+        rts
 
-binstr_buf  .dsb 32
-str_buf     .dsb m_strlen+1        ;conversion string buffer
+;-----------------------------------------------------;
+_PUTCHAR                  ; ROM: PRINT CHARACTER
+        jmp $238
 

@@ -1,10 +1,17 @@
-/*
- * Real Programmers don't need comments -- the code is obvious.
- *
+/*              _
+**  ___ ___ _ _|_|___ ___
+** |  _| .'|_'_| |_ -|_ -|
+** |_| |__,|_,_|_|___|___|
+**         raxiss (c) 2019
 */
 
-#ifndef __SWEET16_H__
-#define __SWEET16_H__
+/*
+ * Real Programmers don't need comments
+ *               -- the code is obvious. ;)
+*/
+
+#ifndef __SWISS16_H__
+#define __SWISS16_H__
 
 // -------------------------------
 // Sweet16 instructions
@@ -29,24 +36,18 @@
 // -------------------------------
 // Branches
 // -------------------------------
-#ifdef __CC65__
-#define RELBR(loc)       <((loc)-*-1)
-#else
-#define RELBR(loc)       <((loc)-*-2)
-#endif
-
-#define BR(loc)         .byt  $01,RELBR(loc)
-#define BNC(loc)        .byt  $02,RELBR(loc)
-#define BC(loc)         .byt  $03,RELBR(loc)
-#define BP(loc)         .byt  $04,RELBR(loc)
-#define BM(loc)         .byt  $05,RELBR(loc)
-#define BZ(loc)         .byt  $06,RELBR(loc)
-#define BNZ(loc)        .byt  $07,RELBR(loc)
-#define BM1(loc)        .byt  $08,RELBR(loc)
-#define BNM1(loc)       .byt  $09,RELBR(loc)
+#define BR(loc)         .byt  $01,<(loc-1),>(loc-1)
+#define BNC(loc)        .byt  $02,<(loc-1),>(loc-1)
+#define BC(loc)         .byt  $03,<(loc-1),>(loc-1)
+#define BP(loc)         .byt  $04,<(loc-1),>(loc-1)
+#define BM(loc)         .byt  $05,<(loc-1),>(loc-1)
+#define BZ(loc)         .byt  $06,<(loc-1),>(loc-1)
+#define BNZ(loc)        .byt  $07,<(loc-1),>(loc-1)
+#define BM1(loc)        .byt  $08,<(loc-1),>(loc-1)
+#define BNM1(loc)       .byt  $09,<(loc-1),>(loc-1)
 #define BK              .byt  $0a
 #define RS              .byt  $0b
-#define BS(loc)         .byt  $0c,RELBR(loc)
+#define BS(loc)         .byt  $0c,<(loc-1),>(loc-1)
 
 // -------------------------------
 // Resisters
@@ -69,10 +70,17 @@
 #define RF              $f
 
 // -------------------------------
-// Sweet16 entries
+// Swiss16 entries
 // -------------------------------
-#define SWEET16_INIT    _SW16_INIT
-#define SWEET16         _SW16
-#define SWEET16_3       _SW16+3
+#define SWISS16_INIT    _SW16_INIT
+#define SWISS16         _SW16
+#define SWISS16_3       _SW16+3
 
-#endif /* __SWEET16_H__ */
+// -------------------------------
+// Keep compatibility with Sweet16
+// -------------------------------
+#define SWEET16_INIT    SWISS16_INIT
+#define SWEET16         SWISS16
+#define SWEET16_3       SWISS16_3
+
+#endif /* __SWISS16_H__ */

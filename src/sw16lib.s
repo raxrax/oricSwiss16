@@ -1,22 +1,40 @@
-;************************************
-;* Simple SWEET16 Function Library  *
-;*           For Oric               *
-;*          14.11.2019              *
-;*            by RAX                *
-;************************************
+;)              _
+;)  ___ ___ _ _|_|___ ___
+;) |  _| .'|_'_| |_ -|_ -|
+;) |_| |__,|_,_|_|___|___|
+;)    raxiss (c) 2019,2020
+
+;***********************************
+;* Simple SWEET16 Function Library *
+;*           For Oric              *
+;*       14.11.2019 by rax         *
+;***********************************
+
+;-----------------------------------
+; Oric Atmos ROM Calls
+_CLS            = $CCCE
+_TEXT           = $EC21
+_HIRES          = $EC33
+
+_TEXT_SCREEN    = $BB80
+_HIRES_SCREEN   = $A000
+_KBDCLICK1      = $FB14
+_KBDCLICK2      = $FB2A
+
+
 
 #ifdef USE_SW16_KEY
 ;RETURN R9 - key
 SW16_KEY
         SET     (R1,$2DF)       ;LAST KEY ADDR
-        SET     (R2,128)        
+        SET     (R2,128)
         LDat    R1              ;LOAD KEY
         SUB     R2              ;REMOVE BIT 7
-        ST      R9              ;SET KEY IN R9 
+        ST      R9              ;SET KEY IN R9
         SET     (R0,0)
         SET     (R1,$2DF)       ;LAST KEY ADDR
         STat    R1
-        RS 
+        RS
 #endif
 
 ;===================================
@@ -51,13 +69,13 @@ SW16_COPY_TEXT
 ;INPUT R3 - SPEED
 SW16_PRINT_TEXT
         LD      R1          ;TEMP DEST
-        ST      R8          
+        ST      R8
         LD      R2          ;TEMP SRC
-        ST      R9 
-        
+        ST      R9
+
 SW16_PRINT_TEXT_LOOP
         LDat    R9          ;CHECK FOR EXIT
-        BZ      (SW16_PRINT_TEXT_END)        
+        BZ      (SW16_PRINT_TEXT_END)
         DCR     (R9)
 
         SET     (R0,128+32) ;PROMPT
@@ -111,16 +129,16 @@ SW16_MEMSET
 SW16_GET
         SET     (R1,$2DF)       ;LAST KEY ADDR
         SET     (R0,0)
-        STat    R1        
+        STat    R1
 
-SW16_GET_LOOP     
+SW16_GET_LOOP
         SET     (R1,$2DF)       ;LAST KEY ADDR
         SET     (R2,128)
-        LDat    R1              ;LOAD KEY 
+        LDat    R1              ;LOAD KEY
         BZ     (SW16_GET_LOOP)
         SUB     R2              ;REMOVE BIT 7
         ST      R9              ;SET KEY IN R9
-        RS 
+        RS
 #endif
 
 ;===================================
@@ -129,16 +147,16 @@ SW16_GET_LOOP
 ;INPUT R1- WAIT VALUE
 ;AFFECT RA
 SW16_WAIT
-        
+
         SET     (R2,$276)                ;TIMER ADDR
         LD      R1                       ;LOAD VALUE
         BZ      (SW16_WAIT_END)
         STat    R2
 SW16_WAIT_LOOP
-        SET     (R2,$276)  
+        SET     (R2,$276)
         LDat    R2
         BNZ     (SW16_WAIT_LOOP)
-SW16_WAIT_END        
+SW16_WAIT_END
         RS
 #endif
 
@@ -184,8 +202,8 @@ SW16_SFX
         SET     (R2,SW16_SFX_TABBLE_ADDRESS)
         LD      R1
         STDat   R2
-        RTN     
-        ;GOTO 6502 
+        RTN
+        ;GOTO 6502
         ldx SW16_SFX_TABBLE_ADDRESS
         ldy SW16_SFX_TABBLE_ADDRESS+1
         jsr $FA86

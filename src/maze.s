@@ -1,3 +1,7 @@
+;====================================
+; MAZE GENERATOR
+;====================================
+
 SW16_MAZE
 
     ; RS
@@ -48,4 +52,6 @@ SW16_LAB_RAND
     ST      R9
 
     RS
-lab_rand  .byte 0
+
+lab_rand
+    .byt 0

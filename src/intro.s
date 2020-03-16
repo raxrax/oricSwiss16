@@ -1,8 +1,12 @@
+;====================================
+; INTRO - THE SWEET16 SHORT INTERNALS
+;====================================
+
 SW16_INTRO
 
     ;; SCREEN 1
     BS      (SW16_CLS)
-    
+
     SET     (R1,$BB80+0+2*40)
     SET     (R2,TEXT_INTRO)
     SET     (R3,3)
@@ -13,7 +17,7 @@ SW16_INTRO
 
     ;; SCREEN 2
     BS      (SW16_CLS)
-    
+
     SET     (R1,$BB80+0+2*40)
     SET     (R2,TEXT_INTRO2)
     SET     (R3,3)
@@ -24,7 +28,7 @@ SW16_INTRO
 
     ;; SCREEN 2
     BS      (SW16_CLS)
-    
+
     SET     (R1,$BB80+0+3*40)
     SET     (R2,TEXT_INTRO3)
     SET     (R3,3)
@@ -35,7 +39,7 @@ SW16_INTRO
 
     RS
 
-TEXT_INTRO   
+TEXT_INTRO
             .byte 3,"SWEET-16 is a powerful programming tool"
             .byte 3,"developed by Steve Wozniak in the early"
             .byte 3,"days of Apple.                         "
@@ -86,7 +90,7 @@ TEXT_INTRO2
             .byte 3,"  En INR  Rn  (Increment)              "
             .byte 3,"  Fn DCR  Rn  (Decrement)              "
             .byte 0
-                                      
+
 TEXT_INTRO3
             .byte 3,"  Nonregister Ops                      "
             .byte 3,"                                       "

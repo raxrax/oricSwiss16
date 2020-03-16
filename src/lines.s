@@ -1,11 +1,11 @@
-;*******************************
-;***********lines***************
-;*******************************
+;====================================
+; TEXT LINES
+;====================================
 
 SW16_LINES
 
           SET (R1,$BBA8)        ;SCREEN ADDRESS
-          SET (R2,16)           ;START COLOR        
+          SET (R2,16)           ;START COLOR
           SET (R4,26*40)        ;LEN
           SET (R5,23)           ;END COLOR
 
@@ -16,19 +16,19 @@ SW16_LINES_LP1
           BM (SW16_LINES_NX1)
           SET (R2,16)
 SW16_LINES_NX1
-          STat R1 
-          STat R1 
-          STat R1 
+          STat R1
+          STat R1
+          STat R1
 
-          STat R1 
-          STat R1 
-          STat R1 
+          STat R1
+          STat R1
+          STat R1
 
-          DCR R4 
-          DCR R4 
-          DCR R4 
-          DCR R4 
-          DCR R4 
+          DCR R4
+          DCR R4
+          DCR R4
+          DCR R4
+          DCR R4
 
           BNZ (SW16_LINES_LP1)
 

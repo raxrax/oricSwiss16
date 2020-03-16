@@ -1,3 +1,6 @@
+;====================================
+; SIMPLE BOX GAME
+;====================================
 
 GAME_WINDOW_X       = 8
 GAME_WINDOW_Y       = 5
@@ -64,7 +67,7 @@ SW16_GAME_INIT
     SET     (R1,game_player_x)      ;SET PLAYER X
     SET     (R0,7)
     STat    R1
-    
+
     SET     (R1,game_state)         ;SET GAME STATE
     SET     (R0,GAME_STATE_RUNNING)
     STat    R1
@@ -118,7 +121,7 @@ SW16_GAME_PLAYER_MOVE
     LDat    R2
     BZ      (SW16_GAME_PLAYER_MOVE_NEXT1)
 
-    SET     (R2,game_player_x)              
+    SET     (R2,game_player_x)
     LDat    R2
     ST      R1
     DCR     R1
@@ -245,7 +248,7 @@ SW16_GAME_MOVEBOX_LOOP
     ;; CHECK TYPE GAME
     SET     (R1,game_type)
     LDat     R1
-    BZ      (SW16_GAME_MOVEBOX_EASY_GAME)  
+    BZ      (SW16_GAME_MOVEBOX_EASY_GAME)
 
     ;;CHECK FOR BOX LEFT
     SET     (R4,1)
@@ -276,12 +279,12 @@ SW16_GAME_MOVEBOX_CHECK2
 
     BR      (SW16_GAME_MOVEBOX_NEW_LINE)    ;IF NO SPACE - EXIT
 
-SW16_GAME_MOVEBOX_EASY_GAME  
+SW16_GAME_MOVEBOX_EASY_GAME
 
 SW16_GAME_MOVEBOX_CHECK3
     ;;CHECK FOR BOX END OF LINE
     LD      R5                              ;LINE COUNTER
-    SET     (R0,1)                  
+    SET     (R0,1)
     CPR     R5                              ;IF LAST LINE - SKIP
     BZ      (SW16_GAME_MOVEBOX_CHECK_END)
 
@@ -314,7 +317,7 @@ SW16_GAME_MOVEBOX_NEXT
     SET     (R2,40)                         ;PREV LINE
     LD      R6
     SUB     R2
-    ST      R6      
+    ST      R6
 
     ;; PRINT_BOX
     SET     (R0, GAME_PLAYER_CHAR1)
@@ -364,14 +367,14 @@ SW16_GAME_PRINTNEWLINE_NEW
 
 SW16_GAME_PRINTNEWLINE_CALC_LOOP
     ;CALC LINE ADDRESS
-    LD      R9                  
+    LD      R9
     BZ     (SW16_GAME_PRINTNEWLINE_NEXT)
 
     SET     (R0,GAME_WINDOWS_WIDTH+2)
     ADD     R2
     ST      R2
     DCR     R9
-    BR      (SW16_GAME_PRINTNEWLINE_CALC_LOOP)      
+    BR      (SW16_GAME_PRINTNEWLINE_CALC_LOOP)
 
 SW16_GAME_PRINTNEWLINE_NEXT
     SET     (R1, GAME_PLAYER_START_LINE)    ;DEST
@@ -401,7 +404,8 @@ SW16_GAME_RAND
     ST      R9
     RS
 
-game_rand  .byte 0
+game_rand
+    .byt 0
 
 ;====================================
 
@@ -441,7 +445,7 @@ SW16_GAME_ERASE_LINES_ERASE
     LD      R6
     ST      R1
     SET     (R2,32)
-    SET     (R3,GAME_WINDOWS_WIDTH+1)    
+    SET     (R3,GAME_WINDOWS_WIDTH+1)
     BS      (SW16_MEMSET)
 
 SW16_GAME_ERASE_LINES_END
@@ -457,7 +461,7 @@ SW16_GAME_MOVE_LINES
 
 SW16_GAME_MOVE_LINES_LOOP
     ;;MOVE LINE
-    LD      R6              
+    LD      R6
     ST      R2
     LD      R7
     ST      R1
@@ -472,9 +476,9 @@ SW16_GAME_MOVE_LINES_LOOP
     LD      R7              ;SRC
     SUB     R9
     ST      R7
-    
+
     DCR     R8              ;INDEX -1
-    BNZ     (SW16_GAME_MOVE_LINES_LOOP)    
+    BNZ     (SW16_GAME_MOVE_LINES_LOOP)
 
     RS
 
@@ -526,13 +530,13 @@ SW16_GAME_SELECT
     BS      (SW16_PRINT_TEXT)
 
 SW16_GAME_SELECT_LOOP
-    
+
     BS      (SW16_GET)
     SET     (R1,'1')
     SET     (R2,'2')
 
     LD      R9              ;GET KEY IN ACC
-    CPR     R1 
+    CPR     R1
     BNZ     (SW16_GAME_SELECT_NEXT)
     SET     (R0,0)          ;SET EASY GAME
     SET     (R1,game_type)
@@ -540,7 +544,7 @@ SW16_GAME_SELECT_LOOP
     RS
 
 SW16_GAME_SELECT_NEXT
-    CPR     R2 
+    CPR     R2
     BNZ     (SW16_GAME_SELECT_LOOP)
     SET     (R0,1)          ;SET HARD GAME
     SET     (R1,game_type)

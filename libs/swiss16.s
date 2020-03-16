@@ -1,3 +1,9 @@
+;)              _
+;)  ___ ___ _ _|_|___ ___
+;) |  _| .'|_'_| |_ -|_ -|
+;) |_| |__,|_,_|_|___|___|
+;)    raxiss (c) 2019,2020
+
 ;********************************
 ;*   APPLE-II  PSEUDO MACHINE   *
 ;*         INTERPRETER          *
@@ -23,11 +29,6 @@ R15L     =   RL(15)
 R15H     =   RH(15)
 
 ;------------------------------
-*        =  START_ADDRESS
-;------------------------------
-        jmp _ENTRY
-
-;------------------------------
 _SW16                       ;MAIN ENTRYPOINT OF SW16
         JSR SW16_SAVE       ;PRESERVE 6502 REG CONTENTS
 ;------------------------------
@@ -43,8 +44,6 @@ SW16C
         BNE  SW16D          ;INCR SWEET16 PC FOR FETCH
         INC  R15H
 SW16D
-        LDA  #>SET          ;COMMON HIGH BYTE FOR ALL ROUTINES
-        PHA                 ;PUSH ON STACK FOR RTS
         LDY  #$0
         LDA  (R15L),Y       ;FETCH INSTR
         AND  #$F            ;MASK REG SPECIFICATION
@@ -58,14 +57,19 @@ SW16D
         LSR                 ;OPCODE*2 TO LSBS
         LSR
         TAY                 ;TO Y REG FOR INDEXING
+        LDA  OPTBH-2,Y      ;HIGH ORDER ADR BYTE
+        PHA
         LDA  OPTBL-2,Y      ;LOW ORDER ADR BYTE
         PHA                 ;ONTO STACK
+        LDA  #0             ;FORCE BPL TO BE TAKEN ALWAYS
         RTS                 ;GOTO REG-OP ROUTINE
 TOBR
         INC  R15L
-        BNE  TOBR2          ;INCR PC
+        BNE  TOBR1          ;INCR PC
         INC  R15H
-TOBR2
+TOBR1
+        LDA  BRTBH,X        ;HIGH ORDER ADR BYTE
+        PHA
         LDA  BRTBL,X        ;LOW ORDER ADR BYTE
         PHA                 ;ONTO STACK FOR NON-REG OP
         LDA  R14H           ;"PRIOR RESULT REG" INDEX
@@ -93,54 +97,13 @@ SETZ
         INC  R15H
 SET2
         RTS
-        
-OPTBL
-       .BYTE <SET-1          ;1X
-BRTBL
-       .BYTE <RTN-1          ;0
-       .BYTE <LD-1           ;2X
-       .BYTE <BR-1           ;1
-       .BYTE <ST-1           ;3X
-       .BYTE <BNC-1          ;2
-       .BYTE <LDAT-1         ;4X
-       .BYTE <BC-1           ;3
-       .BYTE <STAT-1         ;5X
-       .BYTE <BP-1           ;4
-       .BYTE <LDDAT-1        ;6X
-       .BYTE <BM-1           ;5
-       .BYTE <STDAT-1        ;7X
-       .BYTE <BZ-1           ;6
-       .BYTE <POP-1          ;8X
-       .BYTE <BNZ-1          ;7
-       .BYTE <STPAT-1        ;9X
-       .BYTE <BM1-1          ;8
-       .BYTE <ADD-1          ;AX
-       .BYTE <BNM1-1         ;9
-       .BYTE <SUB-1          ;BX
-       .BYTE <BK-1           ;A
-       .BYTE <POPD-1         ;CX
-       .BYTE <RS-1           ;B
-       .BYTE <CPR-1          ;DX
-       .BYTE <BS-1           ;C
-       .BYTE <INR-1          ;EX
-       .BYTE <NUL-1          ;D
-       .BYTE <DCR-1          ;FX
-       .BYTE <NUL-1          ;E
-       .BYTE <NUL-1          ;UNUSED
-       .BYTE <NUL-1          ;F
 
 ;------------------------------
-;* FOLLOWING CODE MUST BE
-;* CONTAINED ON A SINGLE PAGE!
-;------------------------------
-_ON_SINGLE_PAGE_BEGIN
-;------------------------------
-
 SET
         BPL  SETZ           ;ALWAYS TAKEN
 LD
         LDA  R0L,X
-BK      =   *-1
+BK
         STA  R0L
         LDA  R0H,X          ;MOVE RX TO R0
         STA  R0H
@@ -239,48 +202,51 @@ BS
 BR
         CLC
 BNC
-        BCS  BNC2           ;NO CARRY TEST
+        BCS  BR2           ;NO CARRY TEST
 BR1
-        LDA  (R15L),Y       ;DISPLACEMENT BYTE
-        BPL  BR2
-        DEY
-BR2
-        ADC  R15L           ;ADD TO PC
-        STA  R15L
-        TYA
-        ADC  R15H
+        LDA  (R15L),Y       ;DISPLACEMENT BYTE LOW
+        PHA
+        INY
+        LDA  (R15L),Y       ;DISPLACEMENT BYTE HIGH
         STA  R15H
-BNC2
+        PLA
+        STA  R15L
+        RTS
+BR2
+        INC  R15L
+        BNE  NUL
+        INC  R15H
+NUL
         RTS
 BC
         BCS  BR
-        RTS
+        JMP  BR2
 BP
         ASL                 ;DOUBLE RESULT-REG INDEX
         TAX                 ;TO X REG FOR INDEXING
         LDA  R0H,X          ;TEST FOR PLUS
         BPL  BR1            ;BRANCH IF SO
-        RTS
+        JMP  BR2
 BM
         ASL                 ;DOUBLE RESULT-REG INDEX
         TAX
         LDA  R0H,X          ;TEST FOR MINUS
         BMI  BR1
-        RTS
+        JMP  BR2
 BZ
         ASL                 ;DOUBLE RESULT-REG INDEX
         TAX
         LDA  R0L,X          ;TEST FOR ZERO
         ORA  R0H,X          ;(BOTH BYTES)
         BEQ  BR1            ;BRANCH IF SO
-        RTS
+        JMP  BR2
 BNZ
         ASL                 ;DOUBLE RESULT-REG INDEX
         TAX
         LDA  R0L,X          ;TEST FOR NON-ZERO
         ORA  R0H,X          ;(BOTH BYTES)
         BNE  BR1            ;BRANCH IF SO
-        RTS
+        JMP  BR2
 BM1
         ASL                 ;DOUBLE RESULT-REG INDEX
         TAX
@@ -288,7 +254,7 @@ BM1
         AND  R0H,X          ;FOR #$FF (MINUS 1)
         EOR  #$FF
         BEQ  BR1            ;BRANCH IF SO
-        RTS
+        JMP  BR2
 BNM1
         ASL                 ;DOUBLE RESULT-REG INDEX
         TAX
@@ -296,8 +262,7 @@ BNM1
         AND  R0H,X          ;CHECK BOTH BYTES FOR NO #$FF
         EOR  #$FF
         BNE  BR1            ;BRANCH IF NOT MINUS 1
-NUL
-        RTS
+        JMP  BR2
 RS
         LDX  #$18           ;12*2 FOR R12 AS STACK POINTER
         JSR  DCR            ;DECR STACK POINTER
@@ -306,35 +271,115 @@ RS
         JSR  DCR            ;SAME FOR LOW ORDER BYTE
         LDA  (R0L,X)
         STA  R15L
-        RTS
+        JMP  BR2
 RTN
         JMP  RTNZ
 
 ;------------------------------
-_ON_SINGLE_PAGE_END
+OPTBL
+       .BYTE <(SET-1)        ;1X
+BRTBL
+       .BYTE <(RTN-1)        ;0
+       .BYTE <(LD-1)         ;2X
+       .BYTE <(BR-1)         ;1
+       .BYTE <(ST-1)         ;3X
+       .BYTE <(BNC-1)        ;2
+       .BYTE <(LDAT-1)       ;4X
+       .BYTE <(BC-1)         ;3
+       .BYTE <(STAT-1)       ;5X
+       .BYTE <(BP-1)         ;4
+       .BYTE <(LDDAT-1)      ;6X
+       .BYTE <(BM-1)         ;5
+       .BYTE <(STDAT-1)      ;7X
+       .BYTE <(BZ-1)         ;6
+       .BYTE <(POP-1)        ;8X
+       .BYTE <(BNZ-1)        ;7
+       .BYTE <(STPAT-1)      ;9X
+       .BYTE <(BM1-1)        ;8
+       .BYTE <(ADD-1)        ;AX
+       .BYTE <(BNM1-1)       ;9
+       .BYTE <(SUB-1)        ;BX
+       .BYTE <(BK-1-1)       ;A
+       .BYTE <(POPD-1)       ;CX
+       .BYTE <(RS-1)         ;B
+       .BYTE <(CPR-1)        ;DX
+       .BYTE <(BS-1)         ;C
+       .BYTE <(INR-1)        ;EX
+       .BYTE <(NUL-1)        ;D
+       .BYTE <(DCR-1)        ;FX
+       .BYTE <(NUL-1)        ;E
+       .BYTE <(NUL-1)        ;UNUSED
+       .BYTE <(NUL-1)        ;F
+
+;------------------------------
+OPTBH
+       .BYTE >(SET-1)        ;1X
+BRTBH
+       .BYTE >(RTN-1)        ;0
+       .BYTE >(LD-1)         ;2X
+       .BYTE >(BR-1)         ;1
+       .BYTE >(ST-1)         ;3X
+       .BYTE >(BNC-1)        ;2
+       .BYTE >(LDAT-1)       ;4X
+       .BYTE >(BC-1)         ;3
+       .BYTE >(STAT-1)       ;5X
+       .BYTE >(BP-1)         ;4
+       .BYTE >(LDDAT-1)      ;6X
+       .BYTE >(BM-1)         ;5
+       .BYTE >(STDAT-1)      ;7X
+       .BYTE >(BZ-1)         ;6
+       .BYTE >(POP-1)        ;8X
+       .BYTE >(BNZ-1)        ;7
+       .BYTE >(STPAT-1)      ;9X
+       .BYTE >(BM1-1)        ;8
+       .BYTE >(ADD-1)        ;AX
+       .BYTE >(BNM1-1)       ;9
+       .BYTE >(SUB-1)        ;BX
+       .BYTE >(BK-1-1)       ;A
+       .BYTE >(POPD-1)       ;CX
+       .BYTE >(RS-1)         ;B
+       .BYTE >(CPR-1)        ;DX
+       .BYTE >(BS-1)         ;C
+       .BYTE >(INR-1)        ;EX
+       .BYTE >(NUL-1)        ;D
+       .BYTE >(DCR-1)        ;FX
+       .BYTE >(NUL-1)        ;E
+       .BYTE >(NUL-1)        ;UNUSED
+       .BYTE >(NUL-1)        ;F
 
 ;------------------------------
 SW16_SAVE
-        STA  ACC
-        STX  XREG
-        STY  YREG
-        PHP  
-        PLA  
-        STA  STATUS
-        CLD  
+        STA  ACC+1
+        STX  XREG+1
+        STY  YREG+1
+        PHP
+        PLA
+        STA  STATUS+1
+        CLD
         RTS
 
 ;------------------------------
 SW16_RESTORE
-STATUS  = *+1
-        LDA  #<STATUS
-        PHA  
-ACC     = *+1
-        LDA  #<ACC
-XREG    = *+1
-        LDX  #<XREG
-YREG    = *+1
-        LDY  #<YREG
+STATUS
+        LDA  #0
+        PHA
+XREG
+        LDX  #0
+YREG
+        LDY  #0
+ACC
+        LDA  #0
         PLP
         RTS
-;-------------------------------
+
+;------------------------------
+_SW16_INIT
+        LDX  #$20
+        LDA  #$00
+SWI1
+        STA  R0-1,X
+        DEX
+        BNE  SWI1
+        RTS
+
+;------------------------------

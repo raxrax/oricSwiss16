@@ -23,7 +23,7 @@ tok_eod      =  254
 ;
 ; Variable storage
 ;
-lz4_zp      =  $b0
+lz4_zp      =  $a0
 copyptr     =  lz4_zp + 0 ;2b
 savmix      =  lz4_zp + 2 ;1b
 savlen      =  lz4_zp + 3 ;1b
@@ -38,12 +38,12 @@ dstptr      =  lz4_zp + 6 ;2b a1h
 ; either getting weird.
 ;
 
-.text
+; .text
 
-_lzfh_src = *
+_lzfh_src
 in_src    .word 0
 
-_lzfh_dst = *
+_lzfh_dst
 in_dst    .word 0
 
 _lzfh_decompress
@@ -115,9 +115,9 @@ mainloop
          lda   (srcptr),y ;get mixed-length byte
          sta   savmix
          lsr              ;get the literal length
-         lsr    
-         lsr    
-         lsr    
+         lsr
+         lsr
+         lsr
          beq   noliteral
          cmp   #$0f       ;sets carry for >= 15
          bne   shortlit
@@ -138,7 +138,7 @@ nohi2
 ; We could save a couple of cycles by substituting
 ; addr,y in place of (dp),y, but the added setup cost
 ; would only benefit longer literal strings.
-shortlit 
+shortlit
          tax
          tay
 litloop
@@ -186,7 +186,7 @@ shortmatch
          sta   copyptr
          iny
          lda   (srcptr),y ;match offset, hi
-dsthi  
+dsthi
          ora   #$00       ;OR in hi-res page
          sta   copyptr+1
 

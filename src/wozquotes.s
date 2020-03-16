@@ -1,3 +1,7 @@
+;====================================
+; WOZ'S QUOTES
+;====================================
+
 SW16_WOSQUOTES
 
 LINE1       = $A000+40*40
@@ -13,7 +17,7 @@ TEXT_HEIGHT             = 10
 
     SET     (R1, _HIRES)
     BS      (SW16_CALL6502)
-    
+
     ;; HIDE PROMPT
     SET     (R1,$26A)
     SET     (R0,10)
@@ -83,7 +87,7 @@ PICOFF  .word 0
 
 ;====================================
 
-; QUOTES1     
+; QUOTES1
 ;     .byte   "Wherever smart",13
 ;     .byte   "     people work,",13
 ;     .byte   "doors are ",13
