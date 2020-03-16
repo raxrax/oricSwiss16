@@ -37,7 +37,7 @@ TAPS                    := $(addsuffix .tap,$(ATAPS) $(BTAPS) $(CTAPS) $(OTAPS))
 
 #
 
-$(PROJECT)_SRC          := sw16.s swiss16.s lzfh6502.s resources.s $(addsuffix .s,$(PICTURES))
+$(PROJECT)_SRC          := sw16.s swiss16.s lzfh6502.s $(addsuffix .s,$(PICTURES))
 $(PROJECT)_AUTORUN      := 1
 $(PROJECT)_ADDRESS      := $(START_ADDRESS)
 $(PROJECT)_ACPP         := 1
