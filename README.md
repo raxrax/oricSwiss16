@@ -24,5 +24,9 @@ COPYRIGHT (C) 1977 APPLE COMPUTER, INC
 ##### Christian/Assinie for the idea of a portable definition of registers:
 http://oric.forumactif.org/t208-pilot-focal-brainfuck-what-else#2825
 
+##### Andy McFadden for fhpack - compression for 6502
+https://github.com/fadden/fhpack
+
 ##### Cheers to BARRYM for the BEER SONG source code:
 http://forum.6502.org/viewtopic.php?f=2&t=3049#p34606
+
