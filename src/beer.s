@@ -236,14 +236,22 @@ DOTCR   .byt ".",13,10,0
 ; Modify the above to suit your application.
 ; ------------------------------------------
 
-a_hexdec  =   "A"-"9"-2            ;hex to decimal difference
-m_bits    =   32                   ;operand bit size
-m_cbits   =   48                   ;workspace bit size
-m_strlen  =   m_bits+1             ;maximum printable string length
-n_radix   =   4                    ;number of supported radices
-s_pfac    =   m_bits/8             ;primary accumulator size
-s_ptr     =   2                    ;pointer size
-s_wrkspc  =   m_cbits/8            ;conversion workspace size
+; hex to decimal difference
+#define a_hexdec  "A"-"9"-2
+; operand bit size
+#define m_bits    32
+; workspace bit size
+#define m_cbits   48
+; maximum printable string length
+#define m_strlen  m_bits+1
+; number of supported radices
+#define n_radix   4
+; primary accumulator size
+#define s_pfac    m_bits/8
+; pointer size
+#define s_ptr     2
+; conversion workspace size
+#define s_wrkspc  m_cbits/8
 
 ;================================================================================
 ;PER RADIX CONVERSION TABLES
@@ -256,28 +264,27 @@ radxtab  .byt 0,"%@$"         ;recognized symbols
 ;================================================================================
 ;STATIC STORAGE
 
-binstr_buf  .dsb 32,0
-str_buf     .dsb 34,0         ;conversion string buffer - m_strlen+1
+; binary buffer
+binstr_buf  .dsb 32
+; conversion string buffer
+str_buf     .dsb m_strlen+1
 
 ; ---------------------------------
 ; The following may be relocated to
 ; absolute storage if desired.
 ; ---------------------------------
-#if 1
+; primary accumulator
 #define pfac       binstr_buf+s_ptr
+; conversion...
 #define wrkspc01   pfac+s_pfac
+; workspace
 #define wrkspc02   wrkspc01+s_wrkspc
+; string format flag
 #define formflag   wrkspc02+s_wrkspc
+; radix index
 #define radix      formflag+1
+; string buffer index
 #define stridx     radix+1
-#else
-pfac       =       binstr_buf+s_ptr     ;primary accumulator
-wrkspc01   =       pfac+s_pfac          ;conversion...
-wrkspc02   =       wrkspc01+s_wrkspc    ;workspace
-formflag   =       wrkspc02+s_wrkspc    ;string format flag
-radix      =       formflag+1           ;radix index
-stridx     =       radix+1              ;string buffer index
-#endif
 
 ;CONVERT 32-BIT BINARY TO NULL-TERMINATED ASCII NUMBER STRING
 
