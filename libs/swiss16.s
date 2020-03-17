@@ -347,38 +347,41 @@ BRTBH
        .BYTE >(NUL-1)        ;UNUSED
        .BYTE >(NUL-1)        ;F
 
+
+;------------------------------
+STATUS .BYTE 0
+XREG   .BYTE 0
+YREG   .BYTE 0
+AREG   .BYTE 0
 ;------------------------------
 SW16_SAVE
-        STA  ACC+1
-        STX  XREG+1
-        STY  YREG+1
         PHP
+        STA  AREG
+        STX  XREG
+        STY  YREG
         PLA
-        STA  STATUS+1
+        STA  STATUS
         CLD
         RTS
 
 ;------------------------------
 SW16_RESTORE
-STATUS
-        LDA  #0
+        LDA  STATUS
         PHA
-XREG
-        LDX  #0
-YREG
-        LDY  #0
-ACC
-        LDA  #0
+        LDX  XREG
+        LDY  YREG
+        LDA  AREG
         PLP
         RTS
 
 ;------------------------------
 _SW16_INIT
-        LDX  #$20
-        LDA  #$00
+        LDX  #$00
+        TXA
 SWI1
-        STA  R0-1,X
-        DEX
+        STA  R0,X
+        INX
+        CPX  #$20
         BNE  SWI1
         RTS
 

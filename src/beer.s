@@ -236,14 +236,14 @@ DOTCR   .byt ".",13,10,0
 ; Modify the above to suit your application.
 ; ------------------------------------------
 
-a_hexdec  =    "A"-"9"-2            ;hex to decimal difference
-m_bits    =    32                   ;operand bit size
-m_cbits   =    48                   ;workspace bit size
-m_strlen  =    m_bits+1             ;maximum printable string length
-n_radix   =    4                    ;number of supported radices
-s_pfac    =    m_bits/8             ;primary accumulator size
-s_ptr     =    2                    ;pointer size
-s_wrkspc  =    m_cbits/8            ;conversion workspace size
+a_hexdec  =   "A"-"9"-2            ;hex to decimal difference
+m_bits    =   32                   ;operand bit size
+m_cbits   =   48                   ;workspace bit size
+m_strlen  =   m_bits+1             ;maximum printable string length
+n_radix   =   4                    ;number of supported radices
+s_pfac    =   m_bits/8             ;primary accumulator size
+s_ptr     =   2                    ;pointer size
+s_wrkspc  =   m_cbits/8            ;conversion workspace size
 
 ;================================================================================
 ;PER RADIX CONVERSION TABLES
@@ -256,19 +256,28 @@ radxtab  .byt 0,"%@$"         ;recognized symbols
 ;================================================================================
 ;STATIC STORAGE
 
-binstr_buf  .dsb 32
-str_buf     .dsb m_strlen+1   ;conversion string buffer
+binstr_buf  .dsb 32,0
+str_buf     .dsb 34,0         ;conversion string buffer - m_strlen+1
 
 ; ---------------------------------
 ; The following may be relocated to
 ; absolute storage if desired.
 ; ---------------------------------
-#define pfac      binstr_buf+s_ptr     ;primary accumulator
-#define wrkspc01  pfac+s_pfac          ;conversion...
-#define wrkspc02  wrkspc01+s_wrkspc    ;workspace
-#define formflag  wrkspc02+s_wrkspc    ;string format flag
-#define radix     formflag+1           ;radix index
-#define stridx    radix+1              ;string buffer index
+#if 1
+#define pfac       binstr_buf+s_ptr
+#define wrkspc01   pfac+s_pfac
+#define wrkspc02   wrkspc01+s_wrkspc
+#define formflag   wrkspc02+s_wrkspc
+#define radix      formflag+1
+#define stridx     radix+1
+#else
+pfac       =       binstr_buf+s_ptr     ;primary accumulator
+wrkspc01   =       pfac+s_pfac          ;conversion...
+wrkspc02   =       wrkspc01+s_wrkspc    ;workspace
+formflag   =       wrkspc02+s_wrkspc    ;string format flag
+radix      =       formflag+1           ;radix index
+stridx     =       radix+1              ;string buffer index
+#endif
 
 ;CONVERT 32-BIT BINARY TO NULL-TERMINATED ASCII NUMBER STRING
 
