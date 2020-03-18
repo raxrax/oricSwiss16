@@ -289,7 +289,7 @@ SW16_PRINT_SELECT
     TEXT_WELCOME6   .byt  6,"4 ..... 99 Bottles of Beer",0
     TEXT_WELCOME7   .byt  6,"5 ..... Maze Generator",0
     TEXT_WELCOME8   .byt  6,"6 ..... Boxes Game",0
-    TEXT_WELCOME9   .byt  6,"7 ..... Woz's Quotes (random)",0
+    TEXT_WELCOME9   .byt  6,"7 ..... Woz's Quotes",0
     TEXT_WELCOME10  .byt  6,"0 ..... Exit",0
     TEXT_SELECT     .byt  16,12,1,"Select a demo number...",0
     TEXT_ANYKEY     .byt  16,12,1,"Press any key...",0

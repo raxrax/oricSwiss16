@@ -23,12 +23,25 @@ TEXT_HEIGHT             = 10
     SET     (R0,10)
     STat    R1
 
+    ;; INIT COUNTER
+    SET (R0,0)
+    SET (R1,PICNO)
+    STat R1
+
+SW16_WOSQUOTES_NEXT
     ;; LOAD IMAGE
     BS      (SW16_WOSQUOTES_LOADIMAGE)
 
     ;; PRESS ANY KEY
     BS      (SW16_PRINT_PRESS_A_KEY)
     BS      (SW16_GET)
+
+    ;; END OF QUOTES
+    SET     (R2,8)
+    SET     (R1,PICNO)
+    LDat    R1
+    CPR     R2
+    BNZ     (SW16_WOSQUOTES_NEXT)
 
     ;; TEXT
     SET     (R1, _TEXT)
@@ -43,31 +56,11 @@ TEXT_HEIGHT             = 10
 
 ;====================================
 SW16_WOSQUOTES_LOADIMAGE
-    BS      (SW16_WOSQUOTES_NEXTIMAGE)    ;GET RANDOM IMAGE OFFSET
+    BS      (SW16_WOSQUOTES_NEXTIMAGE)    ;GET NEXT IMAGE OFFSET
 
     ;; DECOMPRESS IMAGE
     SET     (R1, $A000)
     BS      (SW16_LZ4DECOMPRESSER)
-    RS
-
-;====================================
-;RETURN R2-RANDOM IMAGE OFFSET
-SW16_WOSQUOTES_RANDOMIMAGE
-    RTN
-    ;ASM
-    lda     $304
-    and     #$07
-    asl
-    tay
-    lda     PICS,y
-    sta     PICOFF
-    lda     PICS+1,y
-    sta     PICOFF+1
-    ;SWEET16
-    jsr     SWEET16
-    SET     (R1,PICOFF)
-    LDDat   R1
-    ST      R2
     RS
 
 ;====================================
@@ -80,16 +73,6 @@ SW16_WOSQUOTES_NEXTIMAGE
     DCR     R1
     STat    R1
 
-    SET     (R2,9)
-    SET     (R1,PICNO)
-    LDat    R1
-    CPR     R2
-    BNZ (SW16_GAME_PLAYER_MOVE_NEXT)
-    SET (R0,0)
-    SET (R1,PICNO)
-    STat R1
-
-SW16_GAME_PLAYER_MOVE_NEXT
     RTN
     ;ASM
     lda PICNO

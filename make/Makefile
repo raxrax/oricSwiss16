@@ -21,7 +21,7 @@ PROJECT_QUITDOS         := 1
 CPU                     := 6502
 
 # # # Toolchain OSDK or CC65
-TOOLCHAIN               := CC65
+TOOLCHAIN               := OSDK
 
 # # #
 START_ADDRESS           := $(shell echo $$((0x1000)))
@@ -75,47 +75,23 @@ AFLAGS                  += $(addprefix -I,$(VPATH))
 AFLAGS                  += -DASSEMBLER
 AFLAGS                  += -DSTART_ADDRESS=$(START_ADDRESS)
 
-# AFLAGS                += -DUSE_JOYSTICK
-# AFLAGS                += -DUSE_JOYSTICK_IJK
-#
-# AFLAGS                += -DUSE_VSYNC
-# AFLAGS                += -DUSE_VSYNC_50HZ
-# AFLAGS                += -DUSE_VSYNC_60HZ
-# AFLAGS                += -DUSE_VSYNC_SOFT
-# AFLAGS                += -DUSE_VSYNC_HARD
-# AFLAGS                += -DUSE_VSYNC_NEGEDGE
-# AFLAGS                += -DUSE_VSYNC_AUTO_TEXT
-
 CFLAGS                  += $(addprefix -I,$(VPATH))
 CFLAGS                  += -DSTART_ADDRESS=$(START_ADDRESS)
-
-# CFLAGS                += -DUSE_JOYSTICK
-# CFLAGS                += -DUSE_JOYSTICK_IJK
-
-# CFLAGS                += -DUSE_VSYNC_50HZ
-# CFLAGS                += -DUSE_VSYNC_60HZ
-
 
 # $(PROJECT)_AFLAGS       +=
 # $(PROJECT)_CFLAGS       +=
 # $(PROJECT)_LFLAGS       +=
 
-TEMP_FILES              += $(PROJECT)_dsk.hfe DSKA0000.HFE
-
-#
-# BIN2TXT := $(OSDK)/bin/bin2txt
-# 	@$(BIN2TXT) -s1 -f2 -h1 -n16 infile outfile label >/dev/null
+TEMP_FILES              +=
 
 prepare: #res
 	@echo "Building with $(TOOLCHAIN)..."
 
 finalize: #hxc
-# 	@([ -e $(PROJECT)_dsk.hfe ] && cp -f $(PROJECT)_dsk.hfe DSKA0000.HFE) || echo -n
 	@([ -e $(PROJECT).brk ] || touch $(PROJECT).brk) || echo -n
-	@echo   "[NFO]   ----------------------"
-	@printf "[MEM]   main  : #%.4X .. #%.4X\\n" $$(($(START_ADDRESS))) $$(expr `cat $(PROJECT) | wc -c` + $$(($(START_ADDRESS))))
-	@echo "Done. crc32: $$(crc32 $(PROJECT))"
-# 	cp -f test2.sym sw16.sym
+	@echo   "[NFO]   ------------------------------"
+	@printf "[MEM]   $(PROJECT)  : #%.4X .. #%.4X\\n" $$(($(START_ADDRESS))) $$(expr `cat $(PROJECT) | wc -c` + $$(($(START_ADDRESS))))
+	@echo   "[CRC]   $$(crc32 $(PROJECT))"
 
 
 .PHONY: res pictures show showtap
