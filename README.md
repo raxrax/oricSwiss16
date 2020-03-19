@@ -30,3 +30,4 @@ https://github.com/fadden/fhpack
 ##### Cheers to BARRYM for the BEER SONG source code:
 http://forum.6502.org/viewtopic.php?f=2&t=3049#p34606
 
+<br><br><table><tr><td> <img alt="Swiss16 demos" width="100%" src="res/swiss16-demo.png"> </td></tr></table>
