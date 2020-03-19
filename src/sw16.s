@@ -284,8 +284,8 @@ SW16_PRINT_SELECT
     TEXT_WELCOME1   .byt  3,10,"--- SWEET16 DEMO PAGE ---",0
     TEXT_WELCOME2   .byt  2,"This demo was made with the SWEET16",0
     TEXT_WELCOME3   .byt  6,"1 ..... Intro",0
-    TEXT_WELCOME4   .byt  6,"2 ..... Text Lines",0
-    TEXT_WELCOME5   .byt  6,"3 ..... Hires Lines",0
+    TEXT_WELCOME4   .byt  6,"2 ..... Text Colors",0
+    TEXT_WELCOME5   .byt  6,"3 ..... Hires Colors",0
     TEXT_WELCOME6   .byt  6,"4 ..... 99 Bottles of Beer",0
     TEXT_WELCOME7   .byt  6,"5 ..... Maze Generator",0
     TEXT_WELCOME8   .byt  6,"6 ..... Boxes Game",0
